@@ -70,7 +70,7 @@ func (s *Service) CreateAppToken(ctx context.Context, req *pbs.CreateAppTokenReq
 		return nil, err
 	}
 
-	authResults := s.authResult(ctx, req.GetItem().GetScopeId(), action.Create)
+	authResults := s.authResult(ctx, req.GetItem().GetScopeId(), action.Create, "")
 	if authResults.Error != nil {
 		return nil, authResults.Error
 	}
@@ -191,7 +191,7 @@ func validateCreateRequest(ctx context.Context, req *pbs.CreateAppTokenRequest) 
 	return nil
 }
 
-func (s Service) authResult(ctx context.Context, scopeID string, a action.Type) auth.VerifyResults {
+func (s Service) authResult(ctx context.Context, scopeID string, a action.Type, appTokenID string) auth.VerifyResults {
 	res := auth.VerifyResults{}
 
 	var parentId string
@@ -220,7 +220,7 @@ func (s Service) authResult(ctx context.Context, scopeID string, a action.Type) 
 			res.Error = err
 			return res
 		}
-		at, err = repo.LookupAppToken(ctx, id)
+		at, err = repo.LookupAppToken(ctx, appTokenID)
 		if err != nil {
 			res.Error = err
 			return res
