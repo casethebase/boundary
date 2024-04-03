@@ -23,6 +23,11 @@ create table app_token (
     constraint scope_id_key_fkey
     references iam_scope(public_id)
     on delete cascade
+    on update cascade,
+  grant_scope_id wt_scope_id
+    constraint grant_scope_id_key_fkey
+    references iam_scope(public_id)
+    on delete cascade
     on update cascade
 );
 comment on table app_token is
