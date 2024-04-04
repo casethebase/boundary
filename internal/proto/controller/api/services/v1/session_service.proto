@@ -58,9 +58,16 @@ message ListSessionsRequest {
   string scope_id = 1; // @gotags: `class:"public" eventstream:"observation"`
   bool recursive = 20 [json_name = "recursive"]; // @gotags: `class:"public" eventstream:"observation"`
   string filter = 30 [json_name = "filter"]; // @gotags: `class:"public"`
-  // Experimental. By default only non-terminated (i.e. pending, active, canceling) are returned.
-  // Set this option to include terminated sessions as well.
-  bool include_terminated = 40 [json_name = "include_terminated"]; // @gotags: `class:"public" eventstream:"observation"`
+  // Deprecated. Should be removed in 0.18.0 since pagination removes the need
+  // for the optimization that this provided.
+  // By default only non-terminated (i.e. pending, active, canceling) are returned.
+  // Set this option to include terminated sessions as well.  If not set paginated
+  // responses may not include terminated sessions either in the response or in
+  // the removed_ids.
+  bool include_terminated = 40 [
+    json_name = "include_terminated",
+    deprecated = true
+  ]; // @gotags: `class:"public" eventstream:"observation"`
   // An opaque token used to continue an existing iteration or
   // request updated items. If not specified, pagination
   // will start from the beginning.
