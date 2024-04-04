@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/hashicorp/boundary/api"
 	"github.com/hashicorp/boundary/api/sessions"
@@ -54,6 +55,11 @@ func newSearchHandlerFunc(ctx context.Context, repo *cache.Repository, refreshSe
 		reqCtx := r.Context()
 		resource := r.URL.Query().Get(resourceKey)
 		authTokenId := r.URL.Query().Get(authTokenIdKey)
+
+		startSearch := time.Now()
+		defer func() {
+			logger.Debug("search request processed", "duration", time.Since(startSearch))
+		}()
 
 		searchableResource := cache.ToSearchableResource(resource)
 		switch {
