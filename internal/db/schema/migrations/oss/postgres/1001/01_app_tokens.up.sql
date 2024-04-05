@@ -24,8 +24,7 @@ create table app_token (
     references iam_scope(public_id)
     on delete cascade
     on update cascade,
-  grant_scope_id wt_scope_id
-    constraint grant_scope_id_key_fkey
+  grant_scope_id wt_scope_id not null
     references iam_scope(public_id)
     on delete cascade
     on update cascade

@@ -48,6 +48,7 @@ message AppToken {
   repeated AppTokenGrant grants = 90;
 
   // the scope the grants apply to (optional)
+  // @inject_tag: `gorm:"default:null"`
   string grant_scope_id = 100;
 }
 
