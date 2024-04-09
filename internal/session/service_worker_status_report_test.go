@@ -417,12 +417,10 @@ func TestWorkerStatusReport(t *testing.T) {
 			require.NoError(err)
 			assert.ElementsMatch(tc.want, got)
 			for _, dc := range tc.orphanedConnections {
-				gotConn, states, err := connRepo.LookupConnection(ctx, dc)
+				gotConn, state, err := connRepo.LookupConnection(ctx, dc)
 				require.NoError(err)
 				assert.Equal(session.ConnectionSystemError, session.ClosedReason(gotConn.ClosedReason))
-				assert.Equal(2, len(states))
-				assert.Nil(states[0].EndTime)
-				assert.Equal(session.StatusClosed, states[0].Status)
+				assert.Equal(session.StatusClosed, state)
 			}
 		})
 	}

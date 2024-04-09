@@ -217,6 +217,7 @@ begin;
   -- Session Connection State trigger
   --
 
+  -- Replaced in 86/01_remove_session_connection_state.up.sql
   -- wh_insert_session_connection_state returns an after insert trigger for the
   -- session_connection_state table which updates
   -- wh_session_connection_accumulating_fact.

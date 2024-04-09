@@ -249,7 +249,7 @@ func TestRepository_ConnectConnection(t *testing.T) {
 			require.NoError(err)
 			require.NotNil(c)
 			require.NotNil(cs)
-			assert.Equal(StatusConnected, cs[0].Status)
+			assert.Equal(StatusConnected, cs)
 			gotConn, _, err := connRepo.LookupConnection(context.Background(), c.PublicId)
 			require.NoError(err)
 			assert.Equal(tt.connectWith.ClientTcpAddress, gotConn.ClientTcpAddress)
@@ -380,8 +380,7 @@ func TestRepository_orphanedConnections(t *testing.T) {
 		require.NoError(err)
 		c, cs, err := connRepo.AuthorizeConnection(ctx, sess.GetPublicId(), serverId)
 		require.NoError(err)
-		require.Len(cs, 1)
-		require.Equal(StatusAuthorized, cs[0].Status)
+		require.Equal(StatusAuthorized, cs)
 		connIds = append(connIds, c.GetPublicId())
 		if i%2 == 0 {
 			worker2ConnIds = append(worker2ConnIds, c.GetPublicId())
@@ -403,18 +402,7 @@ func TestRepository_orphanedConnections(t *testing.T) {
 				UserClientIp:       "127.0.0.1",
 			})
 			require.NoError(err)
-			require.Len(cs, 2)
-			var foundAuthorized, foundConnected bool
-			for _, status := range cs {
-				if status.Status == StatusAuthorized {
-					foundAuthorized = true
-				}
-				if status.Status == StatusConnected {
-					foundConnected = true
-				}
-			}
-			require.True(foundAuthorized)
-			require.True(foundConnected)
+			require.Equal(StatusConnected, cs)
 		}
 	}
 
@@ -517,8 +505,8 @@ func TestRepository_CloseConnections(t *testing.T) {
 			assert.Equal(len(tt.closeWith), len(resp))
 			for _, r := range resp {
 				require.NotNil(r.Connection)
-				require.NotNil(r.ConnectionStates)
-				assert.Equal(StatusClosed, r.ConnectionStates[0].Status)
+				require.NotNil(r.ConnectionState)
+				assert.Equal(StatusClosed, r.ConnectionState)
 			}
 		})
 	}

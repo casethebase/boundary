@@ -44,6 +44,8 @@ type Connection struct {
 	UpdateTime *timestamp.Timestamp `json:"update_time,omitempty" gorm:"default:current_timestamp"`
 	// Version of the connection
 	Version uint32 `json:"version,omitempty" gorm:"default:null"`
+	// ConnectionState is a field derived from connected_time_range
+	ConnectionState string `json:"connection_state,omitempty" gorm:"-"`
 
 	tableName string `gorm:"-"`
 }
@@ -94,6 +96,7 @@ func (c *Connection) Clone() any {
 		BytesDown:          c.BytesDown,
 		ClosedReason:       c.ClosedReason,
 		Version:            c.Version,
+		ConnectionState:    c.ConnectionState,
 	}
 	if c.CreateTime != nil {
 		clone.CreateTime = &timestamp.Timestamp{
