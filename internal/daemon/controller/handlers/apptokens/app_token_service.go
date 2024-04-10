@@ -96,6 +96,9 @@ func (s Service) createInRepo(ctx context.Context, item *pb.AppToken) (*apptoken
 	if item.GetName() != nil {
 		opts = append(opts, apptoken.WithName(ctx, item.GetDescription().GetValue()))
 	}
+	if item.GetGrantScopeId() != nil {
+		opts = append(opts, apptoken.WithGrantScopeId(ctx, item.GetGrantScopeId().GetValue()))
+	}
 
 	repo, err := s.repoFn()
 	if err != nil {
