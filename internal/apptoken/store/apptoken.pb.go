@@ -58,8 +58,8 @@ type AppToken struct {
 	// @inject_tag: `gorm:"-"`
 	Grants []*AppTokenGrant `protobuf:"bytes,90,rep,name=grants,proto3" json:"grants,omitempty" gorm:"-"`
 	// the scope the grants apply to (optional)
-	// @inject_tag: `gorm:"default:null"`
-	GrantScopeId string `protobuf:"bytes,100,opt,name=grant_scope_id,json=grantScopeId,proto3" json:"grant_scope_id,omitempty" gorm:"default:null"`
+	// @inject_tag: `gorm:"default:null;column:grant_scope_id_or_special"`
+	GrantScopeId string `protobuf:"bytes,100,opt,name=grant_scope_id,json=grantScopeId,proto3" json:"grant_scope_id,omitempty" gorm:"default:null;column:grant_scope_id_or_special"`
 }
 
 func (x *AppToken) Reset() {

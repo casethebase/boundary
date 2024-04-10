@@ -24,10 +24,13 @@ create table app_token (
     references iam_scope(public_id)
     on delete cascade
     on update cascade,
-  grant_scope_id wt_scope_id not null
-    references iam_scope(public_id)
-    on delete cascade
-    on update cascade
+  grant_scope_id_or_special text not null -- pk
+    constraint grant_scope_id_or_special_is_valid
+    check (
+      length(trim(grant_scope_id_or_special)) = 12
+        or
+      grant_scope_id_or_special in ('global', 'this', 'children', 'descendants')
+    ),
 );
 comment on table app_token is
   'app_token defines an application auth token';
@@ -41,6 +44,9 @@ $$ language plpgsql;
 
 create trigger immutable_app_token before update on app_token
   for each row execute procedure app_token_immutable();
+
+create trigger ensure_grant_scope_id_or_special_valid before insert or update on app_token
+  for each row execute procedure role_grant_scope_id_or_special_valid();
 
 create table app_token_periodic_expiration_interval (
   app_token_id wt_public_id primary key
