@@ -58,7 +58,7 @@ func newSearchHandlerFunc(ctx context.Context, repo *cache.Repository, refreshSe
 
 		startSearch := time.Now()
 		defer func() {
-			logger.Debug("search request processed", "duration", time.Since(startSearch))
+			logger.Debug("search request processed", "resource", resource, "duration", time.Since(startSearch))
 		}()
 
 		searchableResource := cache.ToSearchableResource(resource)
