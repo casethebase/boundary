@@ -165,7 +165,13 @@ func TestCliAlias(t *testing.T) {
 	)
 	require.NoError(t, output.Err, string(output.Stderr))
 
-	// Update the alias to include a host id
+	// Create invalid host and add it to the host set
+	invalidHostId, err := boundary.CreateHostCli(t, ctx, hostCatalogId, "invalid-address")
+	require.NoError(t, err)
+	err = boundary.AddHostToHostSetCli(t, ctx, hostSetId, invalidHostId)
+	require.NoError(t, err)
+
+	// Update the alias to include the valid host id
 	output = e2e.RunCommand(ctx, "boundary",
 		e2e.WithArgs(
 			"aliases", "update", "target",
@@ -188,6 +194,88 @@ func TestCliAlias(t *testing.T) {
 		),
 	)
 	require.NoError(t, output.Err, string(output.Stderr))
+
+	// Update the alias to include the invalid host id
+	output = e2e.RunCommand(ctx, "boundary",
+		e2e.WithArgs(
+			"aliases", "update", "target",
+			"-id", aliasTargetHostId,
+			"-authorize-session-host-id", invalidHostId,
+			"-format", "json",
+		),
+	)
+	require.NoError(t, output.Err, string(output.Stderr))
+
+	// Connect to target with invalid host set using alias. Expect an error
+	output = e2e.RunCommand(ctx, "boundary",
+		e2e.WithArgs(
+			"connect", "ssh", aliasTargetHost, "--",
+			"-l", c.TargetSshUser,
+			"-i", c.TargetSshKeyPath,
+			"-o", "UserKnownHostsFile=/dev/null",
+			"-o", "StrictHostKeyChecking=no",
+			"-o", "IdentitiesOnly=yes", // forces the use of the provided key
+		),
+	)
+	require.Error(t, output.Err, string(output.Stderr))
+
+	// Update the alias with incorrectly formatted host id. Expect an error
+	output = e2e.RunCommand(ctx, "boundary",
+		e2e.WithArgs(
+			"aliases", "update", "target",
+			"-id", aliasTargetHostId,
+			"-authorize-session-host-id", "invalid-host-id",
+			"-format", "json",
+		),
+	)
+	require.Error(t, output.Err, string(output.Stderr))
+
+	// Update the alias with incorrectly formatted destination id. Expect an error
+	output = e2e.RunCommand(ctx, "boundary",
+		e2e.WithArgs(
+			"aliases", "update", "target",
+			"-id", aliasTargetHostId,
+			"-destination-id", "invalid-target-id",
+			"-format", "json",
+		),
+	)
+	require.Error(t, output.Err, string(output.Stderr))
+
+	// Create an alias with incorrectly formatted host id. Expect an error
+	output = e2e.RunCommand(ctx, "boundary",
+		e2e.WithArgs(
+			"aliases", "create", "target",
+			"-scope-id", "global",
+			"-value", "invalid.host.id.alias",
+			"-authorize-session-host-id", "invalid-host-id",
+			"-format", "json",
+		),
+	)
+	require.Error(t, output.Err, string(output.Stderr))
+
+	// Create an alias with incorrectly formatted destination id. Expect an error
+	output = e2e.RunCommand(ctx, "boundary",
+		e2e.WithArgs(
+			"aliases", "create", "target",
+			"-scope-id", "global",
+			"-value", "invalid.target.id.alias",
+			"-destination-id", "invalid-target-id",
+			"-format", "json",
+		),
+	)
+	require.Error(t, output.Err, string(output.Stderr))
+
+	// Create an alias with host id and no destination id. Expect an error
+	output = e2e.RunCommand(ctx, "boundary",
+		e2e.WithArgs(
+			"aliases", "create", "target",
+			"-scope-id", "global",
+			"-value", aliasTargetHost,
+			"-authorize-session-host-id", hostId,
+			"-format", "json",
+		),
+	)
+	require.Error(t, output.Err, string(output.Stderr))
 
 	// Use an alias that does not exist. Expect an error
 	output = e2e.RunCommand(ctx, "boundary",
