@@ -262,6 +262,16 @@ func (r *ConnectionRepository) ConnectConnection(ctx context.Context, c ConnectW
 				// return err, which will result in a rollback of the update
 				return errors.New(ctx, errors.MultipleRecords, op, "more than 1 resource would have been updated")
 			}
+			// Set the lower bound of the connected_time_range to indicate the connection is connected
+			rowsUpdated, err = w.Exec(ctx, connectConnection, []any{
+				sql.Named("public_id", c.ConnectionId),
+			})
+			if err != nil {
+				return errors.Wrap(ctx, err, op)
+			}
+			if rowsUpdated != 1 {
+				return errors.Wrap(ctx, err, op, errors.WithMsg(fmt.Sprintf("unable to connect connection %s", c.ConnectionId)))
+			}
 			return nil
 		},
 	)

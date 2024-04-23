@@ -124,6 +124,15 @@ from
 	session_connection_limit, session_connection_count;
 `
 
+	// connectConnection sets the connected time range to (now, infinity) to
+	// indicate the connection is connected.
+	connectConnection = `
+    update session_connection 
+        set connected_time_range=tstzrange(now(),'infinity') 
+    where 
+        public_id=@public_id
+`
+
 	terminateSessionIfPossible = `
     -- is terminate_session_id in a canceling state
     with session_version as (
